@@ -4,29 +4,6 @@ TrafficLab adalah aplikasi web interaktif untuk memodelkan, menjalankan, dan mem
 
 Aplikasi menggunakan **Python dan Flask** sebagai backend, **SimPy** sebagai mesin *Discrete Event Simulation* (DES), serta **HTML5 Canvas** dan **Chart.js** untuk menampilkan animasi kendaraan dan hasil analisis melalui dashboard.
 
-## Daftar Isi
-
-- [Tujuan Proyek](#tujuan-proyek)
-- [Fitur](#fitur)
-- [Metode Simulasi](#metode-simulasi)
-- [Indikator Kinerja](#indikator-kinerja)
-- [Skenario Eksperimen](#skenario-eksperimen)
-- [Teknologi](#teknologi)
-- [Struktur Proyek](#struktur-proyek)
-- [Persyaratan](#persyaratan)
-- [Instalasi dan Menjalankan Aplikasi](#instalasi-dan-menjalankan-aplikasi)
-- [Menjalankan Pengujian](#menjalankan-pengujian)
-- [Batasan Model](#batasan-model)
-
-## Tujuan Proyek
-
-TrafficLab berfokus pada perbandingan dua metode pengendalian lampu lalu lintas:
-
-1. **Fixed-Time Traffic Signal** — lampu lalu lintas beroperasi menggunakan siklus dan durasi fase yang telah ditentukan. Durasi lampu tidak berubah mengikuti panjang antrean saat itu.
-2. **Adaptive Traffic Signal** — pemilihan fase dan durasi lampu hijau ditentukan secara dinamis berdasarkan panjang antrean kendaraan pada sumbu Utara–Selatan (NS) dan Timur–Barat (EW). Pengendali juga menerapkan batas durasi minimum dan maksimum serta mekanisme *anti-starvation*.
-
-Tujuan eksperimen adalah menganalisis pengaruh kedua metode terhadap waktu tunggu, panjang antrean, jumlah kendaraan yang dilayani, dan *throughput* pada beberapa kondisi volume lalu lintas.
-
 ## Fitur
 
 - **Simulasi berbasis SimPy:** waktu virtual dan kejadian simulasi dijalankan oleh backend menggunakan SimPy. Animasi di browser hanya menampilkan keadaan simulasi, bukan menjadi sumber waktu simulasi.
