@@ -4,29 +4,6 @@ TrafficLab adalah aplikasi web interaktif untuk memodelkan, menjalankan, dan mem
 
 Aplikasi menggunakan **Python dan Flask** sebagai backend, **SimPy** sebagai mesin *Discrete Event Simulation* (DES), serta **HTML5 Canvas** dan **Chart.js** untuk menampilkan animasi kendaraan dan hasil analisis melalui dashboard.
 
-## Daftar Isi
-
-- [Tujuan Proyek](#tujuan-proyek)
-- [Fitur](#fitur)
-- [Metode Simulasi](#metode-simulasi)
-- [Indikator Kinerja](#indikator-kinerja)
-- [Skenario Eksperimen](#skenario-eksperimen)
-- [Teknologi](#teknologi)
-- [Struktur Proyek](#struktur-proyek)
-- [Persyaratan](#persyaratan)
-- [Instalasi dan Menjalankan Aplikasi](#instalasi-dan-menjalankan-aplikasi)
-- [Menjalankan Pengujian](#menjalankan-pengujian)
-- [Batasan Model](#batasan-model)
-
-## Tujuan Proyek
-
-TrafficLab berfokus pada perbandingan dua metode pengendalian lampu lalu lintas:
-
-1. **Fixed-Time Traffic Signal** — lampu lalu lintas beroperasi menggunakan siklus dan durasi fase yang telah ditentukan. Durasi lampu tidak berubah mengikuti panjang antrean saat itu.
-2. **Adaptive Traffic Signal** — pemilihan fase dan durasi lampu hijau ditentukan secara dinamis berdasarkan panjang antrean kendaraan pada sumbu Utara–Selatan (NS) dan Timur–Barat (EW). Pengendali juga menerapkan batas durasi minimum dan maksimum serta mekanisme *anti-starvation*.
-
-Tujuan eksperimen adalah menganalisis pengaruh kedua metode terhadap waktu tunggu, panjang antrean, jumlah kendaraan yang dilayani, dan *throughput* pada beberapa kondisi volume lalu lintas.
-
 ## Fitur
 
 - **Simulasi berbasis SimPy:** waktu virtual dan kejadian simulasi dijalankan oleh backend menggunakan SimPy. Animasi di browser hanya menampilkan keadaan simulasi, bukan menjadi sumber waktu simulasi.
@@ -43,9 +20,9 @@ Tujuan eksperimen adalah menganalisis pengaruh kedua metode terhadap waktu tungg
 
 Simulasi menggunakan waktu virtual SimPy (`env.now`). Kedatangan kendaraan pada setiap pendekat (Utara, Selatan, Timur, dan Barat) dimodelkan sebagai proses stokastik Poisson. Waktu antar-kedatangan dibangkitkan dari distribusi eksponensial:
 
-\[
+$$
 \Delta t_{\text{kedatangan}} \sim \operatorname{Exp}\left(\lambda = \frac{\text{rate}}{60}\right)
-\]
+$$
 
 `rate` dinyatakan dalam kendaraan per menit untuk setiap arah.
 
@@ -70,9 +47,9 @@ Setelah urutan selesai, siklus kembali ke fase hijau NS.
 
 Pengendali Adaptive menentukan fase berdasarkan jumlah kendaraan yang mengantre pada dua sumbu:
 
-\[
+$$
 Q_{NS} = Q_N + Q_S, \qquad Q_{EW} = Q_E + Q_W
-\]
+$$
 
 Aturan pengendali:
 
@@ -177,14 +154,7 @@ TrafficLab/
 │       ├── charts.js              # Grafik live dan hasil eksperimen
 │       ├── dashboard.js           # Kontrol dan statistik dashboard
 │       └── app.js                 # Inisialisasi frontend
-└── tests/                         # Unit test dan integration test
 ```
-
-## Persyaratan
-
-- Python 3.10 atau lebih baru.
-- `pip` untuk memasang dependensi Python.
-- Browser modern seperti Google Chrome, Microsoft Edge, atau Mozilla Firefox.
 
 ## Instalasi dan Menjalankan Aplikasi
 
@@ -235,33 +205,5 @@ http://127.0.0.1:5000
 ```
 
 > **Catatan:** Perintah di atas mengasumsikan aplikasi Flask berjalan pada alamat lokal dan port `5000`.
-
-## Menjalankan Pengujian
-
-Jalankan unit test dan integration test menggunakan:
-
-```bash
-pytest tests/ -v
-```
-
-Pengujian mencakup beberapa aspek berikut:
-
-- Memastikan fase NS dan EW tidak pernah hijau secara bersamaan.
-- Memastikan durasi hijau Adaptive berada dalam batas minimum dan maksimum.
-- Memeriksa mekanisme *anti-starvation*.
-- Memeriksa perhitungan waktu tunggu, termasuk kendaraan yang belum dilayani pada akhir simulasi.
-- Memeriksa perhitungan rata-rata panjang antrean berbobot waktu.
-- Memeriksa reproduktibilitas *random seed* dan penggunaan CRN.
-- Memeriksa konservasi jumlah kendaraan: kendaraan datang = kendaraan terlayani + kendaraan tersisa.
-- Memeriksa siklus hidup API, termasuk pembuatan sesi, pemajuan simulasi, pengambilan status, reset, dan eksperimen.
-
-## Batasan Model
-
-- Model merupakan abstraksi untuk keperluan pembelajaran dan analisis komparatif, bukan mikrosimulasi lalu lintas perkotaan skala penuh.
-- Kendaraan hanya dimodelkan bergerak lurus. Belok kiri, belok kanan, putar balik (*U-turn*), dan pergerakan pejalan kaki tidak dimodelkan.
-- Sesi simulasi disimpan di memori backend. Jika server dihentikan atau dijalankan ulang, sesi yang sedang aktif akan kembali ke kondisi awal.
-- Parameter skenario merupakan nilai eksperimen yang dapat diubah. Hasil simulasi tidak dapat langsung dianggap sebagai rekomendasi pengaturan lampu lalu lintas untuk persimpangan nyata tanpa kalibrasi dan validasi menggunakan data lapangan.
-
----
 
 **TrafficLab** — Proyek akademik mata kuliah Pemodelan dan Simulasi.
