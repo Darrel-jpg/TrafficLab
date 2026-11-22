@@ -1,211 +1,267 @@
 # TrafficLab — Simulasi dan Analisis Pengaturan Lampu Lalu Lintas
 
-Aplikasi web interaktif untuk pemodelan, simulasi, dan analisis komparatif pengaturan lampu lalu lintas pada persimpangan jalan empat arah. Aplikasi ini menggunakan **Python Flask** sebagai backend, **SimPy** sebagai mesin *Discrete Event Simulation* (DES) utama, serta **HTML5 Canvas** dan **Chart.js** untuk animasi 2D dan visualisasi data live.
+TrafficLab adalah aplikasi web interaktif untuk memodelkan, menjalankan, dan membandingkan strategi pengaturan lampu lalu lintas pada persimpangan empat arah. Proyek ini dikembangkan sebagai tugas mata kuliah **Pemodelan dan Simulasi**.
 
----
+Aplikasi menggunakan **Python dan Flask** sebagai backend, **SimPy** sebagai mesin *Discrete Event Simulation* (DES), serta **HTML5 Canvas** dan **Chart.js** untuk menampilkan animasi kendaraan dan hasil analisis melalui dashboard.
 
-## 1. Latar Belakang dan Tujuan Proyek
+## Daftar Isi
 
-Aplikasi ini dikembangkan untuk tugas mata kuliah **Pemodelan dan Simulasi**. Fokus penelitian dan eksperimen adalah membandingkan dua metode pengendalian lampu lalu lintas:
+- [Tujuan Proyek](#tujuan-proyek)
+- [Fitur](#fitur)
+- [Metode Simulasi](#metode-simulasi)
+- [Indikator Kinerja](#indikator-kinerja)
+- [Skenario Eksperimen](#skenario-eksperimen)
+- [Teknologi](#teknologi)
+- [Struktur Proyek](#struktur-proyek)
+- [Persyaratan](#persyaratan)
+- [Instalasi dan Menjalankan Aplikasi](#instalasi-dan-menjalankan-aplikasi)
+- [Menjalankan Pengujian](#menjalankan-pengujian)
+- [Batasan Model](#batasan-model)
 
-1. **Fixed-Time Traffic Signal (Waktu Tetap)**: Lampu lalu lintas beroperasi berdasarkan siklus waktu tetap yang telah ditentukan sebelumnya, tanpa mempertimbangkan kondisi kepadatan antrean kendaraan saat itu.
-2. **Adaptive Traffic Signal (Responsif Antrean)**: Pemilihan fase dan durasi lampu hijau ditentukan secara dinamis berdasarkan akumulasi panjang antrean kendaraan pada masing-masing sumbu, dilengkapi dengan batasan minimum/maksimum serta mekanisme *anti-starvation*.
+## Tujuan Proyek
 
-**Tujuan utama:** Mengetahui bagaimana kedua metode memengaruhi waktu tunggu rata-rata, panjang antrean berbobot waktu, antrean puncak, dan throughput pada berbagai kondisi volume lalu lintas.
+TrafficLab berfokus pada perbandingan dua metode pengendalian lampu lalu lintas:
 
----
+1. **Fixed-Time Traffic Signal** — lampu lalu lintas beroperasi menggunakan siklus dan durasi fase yang telah ditentukan. Durasi lampu tidak berubah mengikuti panjang antrean saat itu.
+2. **Adaptive Traffic Signal** — pemilihan fase dan durasi lampu hijau ditentukan secara dinamis berdasarkan panjang antrean kendaraan pada sumbu Utara–Selatan (NS) dan Timur–Barat (EW). Pengendali juga menerapkan batas durasi minimum dan maksimum serta mekanisme *anti-starvation*.
 
-## 2. Fitur Utama
+Tujuan eksperimen adalah menganalisis pengaruh kedua metode terhadap waktu tunggu, panjang antrean, jumlah kendaraan yang dilayani, dan *throughput* pada beberapa kondisi volume lalu lintas.
 
-- **Mesin DES Murni (SimPy)**: Virtual time, antrean, pergantian fase sinyal, dan pelepasan kendaraan dikelola secara stokastik oleh SimPy di backend, bukan sekadar animasi timer JavaScript.
-- **Visualisasi Animasi 2D Interaktif**: Persimpangan 4 arah tampak atas dengan marka jalan, lampu lalu lintas bercahaya, antrean teratur, serta kendaraan motor dan mobil yang melintas mulus.
-- **Panel Kontrol Interaktif**: Pilihan metode (*Fixed-Time* vs *Adaptive*), 4 skenario default (*Normal*, *Padat NS*, *Padat EW*, *Jam Sibuk*, dan *Kustom*), pengaturan rasio motor/mobil, seed acak, durasi simulasi, serta kontrol laju kecepatan animasi (1x, 2x, 5x, 10x).
-- **Dashboard Statistik Live**: Kartu KPI diperbarui secara real-time dari snapshot SimPy tanpa angka fiktif:
-  - Rata-rata waktu tunggu (detik)
-  - Panjang antrean rata-rata berbobot waktu (*time-weighted average queue*)
-  - Antrean maksimum jaringan
-  - Total kendaraan datang, terlayani, dan tersisa
-  - Throughput persimpangan (kendaraan/menit)
-- **Grafik Live SimPy**: Dinamika panjang antrean sumbu NS vs sumbu EW seiring waktu virtual.
-- **Batch Experiment Runner**: Eksperimen komparatif Monte Carlo otomatis dengan metode *Common Random Numbers* (CRN) untuk perbandingan yang adil pada seed kedatangan yang sama. Menyajikan ringkasan eksekutif, 4 grafik perbandingan, tabel statistik (Mean ± Standar Deviasi), dan fitur ekspor data ke CSV.
-- **Desain Modern Light Mode**: Antarmuka bersih, ramah untuk presentasi akademik, dengan palet warna terinspirasi dari lalu lintas dan jalan aspal berdaya kontras tinggi.
+## Fitur
 
----
+- **Simulasi berbasis SimPy:** waktu virtual dan kejadian simulasi dijalankan oleh backend menggunakan SimPy. Animasi di browser hanya menampilkan keadaan simulasi, bukan menjadi sumber waktu simulasi.
+- **Animasi persimpangan 2D:** tampilan persimpangan empat arah dari atas, dilengkapi marka jalan, lampu lalu lintas, antrean, serta kendaraan motor dan mobil.
+- **Kontrol simulasi:** pemilihan metode Fixed-Time atau Adaptive, pemilihan skenario, pengaturan rasio motor dan mobil, *random seed*, durasi simulasi, serta kontrol kecepatan animasi.
+- **Dashboard statistik:** menampilkan rata-rata waktu tunggu, rata-rata panjang antrean berbobot waktu, antrean maksimum, jumlah kendaraan datang/terlayani/tersisa, dan *throughput*.
+- **Grafik secara langsung:** menampilkan perubahan panjang antrean pada sumbu NS dan EW terhadap waktu simulasi.
+- **Eksperimen batch:** menjalankan eksperimen komparatif berulang dengan pendekatan Monte Carlo dan *Common Random Numbers* (CRN), lalu menyajikan ringkasan, grafik perbandingan, statistik rata-rata dan standar deviasi, serta ekspor hasil ke CSV.
+- **Antarmuka light mode:** dashboard dengan warna yang terinspirasi dari elemen lalu lintas agar informasi simulasi mudah dibedakan.
 
-## 3. Teknologi yang Digunakan
+## Metode Simulasi
 
-- **Backend**: Python 3.10+ / Python 3.14, Flask
-- **Simulation Engine**: SimPy 4.1.2
-- **Testing**: Pytest 9.2.0
-- **Frontend**: HTML5, CSS3 Modern, Vanilla JavaScript (ES6+)
-- **Canvas 2D**: HTML5 Canvas API (60 FPS render loop)
-- **Visualisasi Data**: Chart.js 4.4.1
+### Discrete Event Simulation dengan SimPy
 
----
+Simulasi menggunakan waktu virtual SimPy (`env.now`). Kedatangan kendaraan pada setiap pendekat (Utara, Selatan, Timur, dan Barat) dimodelkan sebagai proses stokastik Poisson. Waktu antar-kedatangan dibangkitkan dari distribusi eksponensial:
 
-## 4. Struktur Direktori Proyek
+\[
+\Delta t_{\text{kedatangan}} \sim \operatorname{Exp}\left(\lambda = \frac{\text{rate}}{60}\right)
+\]
 
-```text
-Simulasi Lalu Lintas/
-├── app.py                     # Entry point server web Flask
-├── config.py                  # Konfigurasi parameter terpusat & skenario
-├── README.md                  # Dokumentasi teknis lengkap
-├── simulation/                # Modul inti simulasi SimPy (DES)
-│   ├── __init__.py
-│   ├── engine.py              # SimulationEngine (orkestrasi SimPy DES)
-│   ├── vehicle.py             # Model kendaraan (Motor & Mobil)
-│   ├── arrivals.py            # Generator kedatangan Poisson/Eksponensial
-│   ├── traffic_signal.py      # Pengelola sinyal & penegak invariant keselamatan
-│   ├── metrics.py             # Pelacak metrik tanpa bias & time-weighted average
-│   ├── experiments.py         # Eksekutor batch eksperimen Monte Carlo & CRN
-│   └── controllers/           # Algoritma pengatur lampu lalu lintas
-│       ├── __init__.py
-│       ├── base_controller.py
-│       ├── fixed_time.py      # Siklus waktu tetap
-│       └── adaptive.py        # Pengendali adaptif berbasis antrean
-├── routes/
-│   ├── __init__.py
-│   └── api.py                 # Endpoint REST API JSON
-├── templates/
-│   └── index.html             # Halaman antarmuka web utama
-├── static/
-│   ├── css/
-│   │   └── style.css          # Desain light mode modern & responsif
-│   └── js/
-│       ├── api.js             # HTTP client untuk backend
-│       ├── simulation-renderer.js # Renderer 2D Canvas persimpangan & kendaraan
-│       ├── charts.js          # Pengelola grafik Chart.js (live & eksperimen)
-│       ├── dashboard.js       # Kontrol simulasi, KPI live, & eksperimen
-│       └── app.js             # Inisialisasi aplikasi
-```
+`rate` dinyatakan dalam kendaraan per menit untuk setiap arah.
 
----
+Untuk membandingkan Fixed-Time dan Adaptive secara lebih adil, eksperimen menggunakan **Common Random Numbers (CRN)**. Dengan *random seed* yang sama, pasangan eksperimen menggunakan pola kedatangan dan karakteristik kendaraan acak yang sama sehingga perbedaan hasil dapat dianalisis berdasarkan metode pengendalian yang diuji.
 
-## 5. Model Simulasi dan Algoritma
+### Fixed-Time Traffic Signal
 
-### 5.1 Paradigma Discrete Event Simulation (SimPy)
+Metode Fixed-Time menggunakan urutan fase berulang berikut:
 
-Sistem dimodelkan menggunakan waktu diskrit virtual SimPy (`env.now`). Kedatangan kendaraan pada setiap pendekat (Utara, Selatan, Timur, Barat) bersifat stokastik mengikuti proses Poisson, dibangkitkan dari distribusi eksponensial waktu antar-kedatangan:
+| Urutan | Fase | Durasi |
+|---|---|---:|
+| 1 | Hijau NS | 30 detik |
+| 2 | Kuning NS | 3 detik |
+| 3 | All-red | 1 detik |
+| 4 | Hijau EW | 30 detik |
+| 5 | Kuning EW | 3 detik |
+| 6 | All-red | 1 detik |
 
-$$\Delta t_{kedatangan} \sim \text{Exp}\left(\lambda = \frac{\text{rate}}{60}\right)$$
+Setelah urutan selesai, siklus kembali ke fase hijau NS.
 
-Untuk menjaga perbandingan yang adil (*fair comparison*) antara Fixed-Time dan Adaptive, sistem menggunakan teknik **Common Random Numbers (CRN)**. Dengan seed yang sama, kedua metode dihadapkan pada urutan, waktu tiba, dan tipe kendaraan yang persis identik.
+### Adaptive Traffic Signal
 
-### 5.2 Algoritma Pengaturan Lampu
+Pengendali Adaptive menentukan fase berdasarkan jumlah kendaraan yang mengantre pada dua sumbu:
 
-#### A. Fixed-Time Signal
-Beroperasi dengan siklus fase tetap:
-1. Hijau NS (30 detik)
-2. Kuning NS (3 detik)
-3. All-Red 1 (1 detik)
-4. Hijau EW (30 detik)
-5. Kuning EW (3 detik)
-6. All-Red 2 (1 detik)
-7. Ulangi siklus secara berkala.
+\[
+Q_{NS} = Q_N + Q_S, \qquad Q_{EW} = Q_E + Q_W
+\]
 
-#### B. Adaptive Signal Berbasis Antrean
-1. **Perhitungan Antrean Gabungan**:
-   $$Q_{NS} = Q_N + Q_S, \quad Q_{EW} = Q_E + Q_W$$
-2. **Aturan Anti-Starvation**: Jika antrean pada suatu sumbu telah menunggu dalam status merah melebihi ambang batas $T_{max\_red} = 60$ detik dan terdapat kendaraan mengantre, sumbu tersebut diprioritaskan pada siklus keputusan berikutnya.
-3. **Pemilihan Sumbu**:
-   - Jika hanya satu sumbu yang memiliki antrean, pilih sumbu tersebut.
-   - Jika kedua sumbu memiliki antrean, pilih sumbu dengan antrean gabungan lebih besar.
-   - Jika jumlah antrean seimbang, gunakan pergantian bergantian (*alternation/tie-break*).
-   - Jika kedua antrean kosong, gunakan pergantian bergantian.
-4. **Perhitungan Durasi Hijau**:
-   $$\text{green\_duration} = \text{clamp}(\text{min\_green} + 1.5 \times Q_{\text{terpilih}}, \ 15\text{s}, \ 45\text{s})$$
-5. **Early Green Termination**: Setelah melayani durasi minimal $\text{min\_green} = 15$ detik, jika antrean sumbu aktif telah kosong sementara sumbu lawan memiliki kendaraan menunggu, fase hijau dihentikan lebih awal untuk beralih ke kuning dan all-red.
-6. **Keselamatan Simpang (Invariant)**: Fase NS dan EW **tidak pernah** hijau bersamaan. Setiap pergantian fase wajib melalui kuning (3s) dan all-red (1s).
+Aturan pengendali:
 
----
+1. **Anti-starvation:** jika suatu sumbu memiliki kendaraan yang mengantre dan telah menunggu dalam status merah lebih dari 60 detik, sumbu tersebut diprioritaskan pada keputusan fase berikutnya.
+2. **Pemilihan fase:** jika hanya satu sumbu yang memiliki antrean, sumbu tersebut dipilih. Jika keduanya memiliki antrean, sumbu dengan antrean gabungan lebih besar dipilih. Jika jumlah antrean sama atau keduanya kosong, sistem menggunakan pergantian bergantian sebagai *tie-break*.
+3. **Durasi hijau:** durasi dihitung berdasarkan antrean sumbu terpilih dan dibatasi antara 15 hingga 45 detik:
 
-## 6. Definisi Indikator Kinerja (KPI)
+   \[
+   G = \operatorname{clamp}(15 + 1.5Q_{\text{terpilih}}, 15, 45)
+   \]
 
-1. **Rata-rata Waktu Tunggu Kendaraan (detik)**:
-   Dihitung tanpa bias atas seluruh kendaraan yang tiba:
-   - Kendaraan yang sudah dilayani: $w_i = t_{\text{mulai\_servis}} - t_{\text{tiba}}$
-   - Kendaraan yang masih mengantre pada akhir simulasi: $w_j = t_{\text{akhir}} - t_{\text{tiba}}$
-   $$\bar{W} = \frac{\sum w_i + \sum w_j}{N_{\text{total\_datang}}}$$
-2. **Panjang Antrean Rata-rata Berbobot Waktu (kendaraan)**:
-   Dihitung secara integral kontinyu terhadap waktu:
-   $$\bar{Q} = \frac{1}{T} \int_0^T Q(t) \, dt = \frac{\sum Q_k \cdot \Delta t_k}{T}$$
-3. **Panjang Antrean Maksimum (kendaraan)**: Puncak antrean terpanjang yang pernah tercapai pada suatu pendekat dan jaringan.
-4. **Total Kendaraan Datang, Terlayani, dan Tersisa**: Mematuhi hukum konservasi:
-   $$N_{\text{datang}} = N_{\text{terlayani}} + N_{\text{tersisa}}$$
-5. **Throughput (kendaraan/menit)**:
-   $$\text{Throughput} = \frac{N_{\text{terlayani}}}{\text{menit virtual}}$$
+4. **Pengakhiran hijau lebih awal:** setelah durasi hijau minimum 15 detik terpenuhi, fase dapat diakhiri lebih awal jika antrean sumbu aktif kosong sementara sumbu lawan memiliki antrean.
+5. **Keselamatan persimpangan:** fase NS dan EW tidak boleh mendapatkan lampu hijau secara bersamaan. Pergantian fase selalu melewati lampu kuning selama 3 detik dan *all-red* selama 1 detik.
 
----
+## Indikator Kinerja
 
-## 7. Skenario Eksperimen Default
+TrafficLab menggunakan indikator berikut untuk mengevaluasi hasil simulasi:
 
-Nilai berikut adalah parameter awal ilustratif untuk eksperimen akademis:
+1. **Rata-rata waktu tunggu kendaraan (detik).** Waktu tunggu kendaraan yang telah dilayani dihitung dari waktu kedatangan sampai mulai dilayani. Untuk kendaraan yang masih mengantre pada akhir simulasi, waktu tunggu dihitung sampai waktu akhir simulasi.
+
+   \[
+   \bar{W} = \frac{\sum w_i + \sum w_j}{N_{\text{total datang}}}
+   \]
+
+2. **Rata-rata panjang antrean berbobot waktu (kendaraan).** Dihitung berdasarkan luas di bawah kurva panjang antrean terhadap waktu simulasi:
+
+   \[
+   \bar{Q} = \frac{1}{T}\int_0^T Q(t)\,dt
+   = \frac{\sum Q_k\Delta t_k}{T}
+   \]
+
+3. **Panjang antrean maksimum (kendaraan).** Menunjukkan nilai puncak antrean selama simulasi.
+4. **Jumlah kendaraan datang, terlayani, dan tersisa.** Perhitungan mengikuti prinsip konservasi kendaraan:
+
+   \[
+   N_{\text{datang}} = N_{\text{terlayani}} + N_{\text{tersisa}}
+   \]
+
+5. **Throughput (kendaraan/menit).** Jumlah kendaraan yang berhasil dilayani dibagi durasi simulasi dalam menit:
+
+   \[
+   \text{Throughput} = \frac{N_{\text{terlayani}}}{T_{\text{menit}}}
+   \]
+
+## Skenario Eksperimen
+
+Aplikasi menyediakan empat skenario bawaan dan opsi konfigurasi kustom. Nilai skenario bawaan merupakan parameter awal untuk eksperimen akademis, bukan data hasil pengukuran lapangan.
 
 | Skenario | Utara (N) | Selatan (S) | Timur (E) | Barat (W) | Karakteristik |
-|---|:---:|:---:|:---:|:---:|---|
+|---|---:|---:|---:|---:|---|
 | **Normal** | 8 | 8 | 8 | 8 | Volume seimbang di semua arah |
-| **Padat NS** | 14 | 14 | 5 | 5 | Koridor Utara–Selatan padat |
-| **Padat EW** | 5 | 5 | 14 | 14 | Koridor Timur–Barat padat |
-| **Jam Sibuk** | 12 | 12 | 12 | 12 | Beban tinggi di seluruh penjuru |
+| **Padat NS** | 14 | 14 | 5 | 5 | Koridor Utara–Selatan lebih padat |
+| **Padat EW** | 5 | 5 | 14 | 14 | Koridor Timur–Barat lebih padat |
+| **Jam Sibuk** | 12 | 12 | 12 | 12 | Volume tinggi di seluruh arah |
 
-*Catatan: Angka di atas dinyatakan dalam kendaraan/menit/arah dan dapat diatur secara manual oleh pengguna.*
+Semua nilai pada tabel dinyatakan dalam **kendaraan/menit/arah** dan dapat disesuaikan melalui konfigurasi simulasi.
 
----
+## Teknologi
 
-## 8. Panduan Menjalankan Aplikasi (Tanpa Virtual Environment)
+| Bagian | Teknologi |
+|---|---|
+| Bahasa backend | Python 3.10 atau lebih baru |
+| Web framework | Flask |
+| Mesin simulasi DES | SimPy 4.1.2 |
+| Frontend | HTML5, CSS3, Vanilla JavaScript (ES6+) |
+| Animasi 2D | HTML5 Canvas API |
+| Grafik | Chart.js 4.4.1 |
+| Pengujian | pytest 9.2.0 |
 
-### Persyaratan Sistem
-- Python 3.10 atau versi lebih baru (termasuk Python 3.14).
-- Peramban web modern (Google Chrome, Microsoft Edge, Mozilla Firefox, dsb).
+## Struktur Proyek
 
-### Langkah Menjalankan Langsung:
+```text
+TrafficLab/
+├── app.py                         # Entry point aplikasi Flask
+├── config.py                      # Konfigurasi parameter dan skenario
+├── requirements.txt               # Dependensi Python
+├── README.md                      # Dokumentasi proyek
+├── simulation/                    # Mesin simulasi SimPy (DES)
+│   ├── __init__.py
+│   ├── engine.py                  # Orkestrasi simulasi
+│   ├── vehicle.py                 # Model kendaraan motor dan mobil
+│   ├── arrivals.py                # Generator kedatangan Poisson/eksponensial
+│   ├── traffic_signal.py          # Pengelolaan fase dan sinyal lalu lintas
+│   ├── metrics.py                 # Pengumpulan dan perhitungan metrik
+│   ├── experiments.py              # Eksperimen Monte Carlo dan CRN
+│   └── controllers/               # Algoritma pengendali lampu lalu lintas
+│       ├── __init__.py
+│       ├── base_controller.py
+│       ├── fixed_time.py
+│       └── adaptive.py
+├── routes/
+│   ├── __init__.py
+│   └── api.py                     # REST API berbasis JSON
+├── templates/
+│   └── index.html                 # Halaman utama
+├── static/
+│   ├── css/
+│   │   └── style.css              # Styling dashboard
+│   └── js/
+│       ├── api.js                 # Komunikasi frontend dengan API
+│       ├── simulation-renderer.js # Renderer persimpangan dan kendaraan
+│       ├── charts.js              # Grafik live dan hasil eksperimen
+│       ├── dashboard.js           # Kontrol dan statistik dashboard
+│       └── app.js                 # Inisialisasi frontend
+└── tests/                         # Unit test dan integration test
+```
 
-1. Buka terminal (PowerShell atau Command Prompt) pada direktori proyek:
-   ```powershell
-   cd "c:\Users\darre\Documents\Coding\Pemodelan dan Simulasi\Simulasi Lalu Lintas"
-   ```
+## Persyaratan
 
-2. Instal dependensi langsung ke Python sistem:
-   ```powershell
-   pip install -r requirements.txt
-   ```
+- Python 3.10 atau lebih baru.
+- `pip` untuk memasang dependensi Python.
+- Browser modern seperti Google Chrome, Microsoft Edge, atau Mozilla Firefox.
 
-3. Jalankan aplikasi web:
-   ```powershell
-   python app.py
-   ```
+## Instalasi dan Menjalankan Aplikasi
 
-4. Buka peramban dan akses alamat:
-   ```text
-   http://127.0.0.1:5000
-   ```
+### 1. Clone repository
 
----
+```bash
+git clone <URL-REPOSITORY>
+cd TrafficLab
+```
 
-## 9. Menjalankan Pengujian Otomatis (Unit & Integration Tests)
+Ganti `<URL-REPOSITORY>` dengan URL repository GitHub milikmu.
 
-Seluruh logika model, invariant sinyal, perhitungan metrik, dan endpoint API telah dilengkapi dengan pengujian otomatis menggunakan **pytest**.
+### 2. Buat dan aktifkan virtual environment
 
-Untuk menjalankan seluruh rangkaian tes:
+**Windows (PowerShell):**
 
 ```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Instal dependensi
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. Jalankan aplikasi
+
+```bash
+python app.py
+```
+
+### 5. Buka aplikasi di browser
+
+Akses alamat berikut:
+
+```text
+http://127.0.0.1:5000
+```
+
+> **Catatan:** Perintah di atas mengasumsikan aplikasi Flask berjalan pada alamat lokal dan port `5000`.
+
+## Menjalankan Pengujian
+
+Jalankan unit test dan integration test menggunakan:
+
+```bash
 pytest tests/ -v
 ```
 
-Hasil pengujian mencakup:
-- Verifikasi keselamatan lampu (fase hijau tidak pernah bertabrakan).
-- Batas durasi hijau minimum dan maksimum pengendali adaptif.
-- Mekanisme anti-starvation pada sumbu yang mengalami waktu tunggu merah lama.
-- Perhitungan waktu tunggu tanpa bias (menyertakan kendaraan yang belum terlayani).
-- Perhitungan panjang antrean rata-rata berbobot waktu (*time-weighted average*).
-- Reproduktibilitas random seed dan kesesuaian Common Random Numbers.
-- Hukum konservasi kendaraan ($N_{\text{datang}} = N_{\text{terlayani}} + N_{\text{tersisa}}$).
-- Pengujian siklus hidup API (create, advance, state, reset, experiments).
+Pengujian mencakup beberapa aspek berikut:
+
+- Memastikan fase NS dan EW tidak pernah hijau secara bersamaan.
+- Memastikan durasi hijau Adaptive berada dalam batas minimum dan maksimum.
+- Memeriksa mekanisme *anti-starvation*.
+- Memeriksa perhitungan waktu tunggu, termasuk kendaraan yang belum dilayani pada akhir simulasi.
+- Memeriksa perhitungan rata-rata panjang antrean berbobot waktu.
+- Memeriksa reproduktibilitas *random seed* dan penggunaan CRN.
+- Memeriksa konservasi jumlah kendaraan: kendaraan datang = kendaraan terlayani + kendaraan tersisa.
+- Memeriksa siklus hidup API, termasuk pembuatan sesi, pemajuan simulasi, pengambilan status, reset, dan eksperimen.
+
+## Batasan Model
+
+- Model merupakan abstraksi untuk keperluan pembelajaran dan analisis komparatif, bukan mikrosimulasi lalu lintas perkotaan skala penuh.
+- Kendaraan hanya dimodelkan bergerak lurus. Belok kiri, belok kanan, putar balik (*U-turn*), dan pergerakan pejalan kaki tidak dimodelkan.
+- Sesi simulasi disimpan di memori backend. Jika server dihentikan atau dijalankan ulang, sesi yang sedang aktif akan kembali ke kondisi awal.
+- Parameter skenario merupakan nilai eksperimen yang dapat diubah. Hasil simulasi tidak dapat langsung dianggap sebagai rekomendasi pengaturan lampu lalu lintas untuk persimpangan nyata tanpa kalibrasi dan validasi menggunakan data lapangan.
 
 ---
 
-## 10. Catatan dan Keterbatasan Model
-
-- Model ini merupakan representasi terabstraksi untuk kebutuhan analisis komparatif dalam perkuliahan Pemodelan dan Simulasi, bukan replika mikrosimulasi lalu lintas perkotaan skala penuh.
-- Kendaraan hanya bergerak lurus; manuver belok kiri, belok kanan, putar balik (*U-turn*), dan pejalan kaki diabstraksikan tidak dimodelkan.
-- Sesi simulasi disimpan dalam memori RAM backend server. Jika server di-restart, sesi aktif akan direset kembali ke kondisi awal.
+**TrafficLab** — Proyek akademik mata kuliah Pemodelan dan Simulasi.
