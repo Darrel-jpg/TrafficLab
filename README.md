@@ -206,4 +206,32 @@ http://127.0.0.1:5000
 
 > **Catatan:** Perintah di atas mengasumsikan aplikasi Flask berjalan pada alamat lokal dan port `5000`.
 
+## Menjalankan Pengujian
+
+Jalankan unit test dan integration test menggunakan:
+
+```bash
+pytest tests/ -v
+```
+
+Pengujian mencakup beberapa aspek berikut:
+
+- Memastikan fase NS dan EW tidak pernah hijau secara bersamaan.
+- Memastikan durasi hijau Adaptive berada dalam batas minimum dan maksimum.
+- Memeriksa mekanisme *anti-starvation*.
+- Memeriksa perhitungan waktu tunggu, termasuk kendaraan yang belum dilayani pada akhir simulasi.
+- Memeriksa perhitungan rata-rata panjang antrean berbobot waktu.
+- Memeriksa reproduktibilitas *random seed* dan penggunaan CRN.
+- Memeriksa konservasi jumlah kendaraan: kendaraan datang = kendaraan terlayani + kendaraan tersisa.
+- Memeriksa siklus hidup API, termasuk pembuatan sesi, pemajuan simulasi, pengambilan status, reset, dan eksperimen.
+
+## Batasan Model
+
+- Model merupakan abstraksi untuk keperluan pembelajaran dan analisis komparatif, bukan mikrosimulasi lalu lintas perkotaan skala penuh.
+- Kendaraan hanya dimodelkan bergerak lurus. Belok kiri, belok kanan, putar balik (*U-turn*), dan pergerakan pejalan kaki tidak dimodelkan.
+- Sesi simulasi disimpan di memori backend. Jika server dihentikan atau dijalankan ulang, sesi yang sedang aktif akan kembali ke kondisi awal.
+- Parameter skenario merupakan nilai eksperimen yang dapat diubah. Hasil simulasi tidak dapat langsung dianggap sebagai rekomendasi pengaturan lampu lalu lintas untuk persimpangan nyata tanpa kalibrasi dan validasi menggunakan data lapangan.
+
+---
+
 **TrafficLab** — Proyek akademik mata kuliah Pemodelan dan Simulasi.
