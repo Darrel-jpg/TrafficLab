@@ -78,20 +78,13 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3. Instal dependensi
-
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 4. Jalankan aplikasi
+### 3. Jalankan aplikasi
 
 ```bash
 python app.py
 ```
 
-### 5. Buka aplikasi di browser
+### 4. Buka aplikasi di browser
 
 Akses alamat berikut:
 
