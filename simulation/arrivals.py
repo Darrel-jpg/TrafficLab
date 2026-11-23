@@ -1,7 +1,3 @@
-"""
-Generator kedatangan kendaraan stokastik menggunakan SimPy.
-Kedatangan mengikuti proses Poisson (inter-arrival terdistribusi eksponensial).
-"""
 import random
 import simpy
 from typing import Callable, Any
@@ -9,10 +5,6 @@ from simulation.vehicle import Vehicle
 from config import VEHICLE_SERVICE_TIME
 
 class ArrivalGenerator:
-    """
-    Membangkitkan kendaraan untuk suatu pendekat (N, S, E, atau W)
-    secara stokastik menggunakan waktu antar-kedatangan eksponensial.
-    """
     def __init__(
         self,
         env: simpy.Environment,
@@ -32,15 +24,13 @@ class ArrivalGenerator:
         self.process = self.env.process(self._run())
 
     def _run(self):
-        """Loop proses SimPy untuk kedatangan kendaraan."""
+        # Loop proses SimPy untuk kedatangan kendaraan
         while True:
             # Jika arrival rate <= 0, tidak ada kendaraan yang datang
             if self.rate_per_min <= 0:
                 yield self.env.timeout(3600)
                 continue
 
-            # Inter-arrival time dalam detik: mean = 60.0 / rate_per_min
-            # Menggunakan distribusi eksponensial (rng.expovariate dengan lambda = rate_per_sec)
             rate_per_sec = self.rate_per_min / 60.0
             inter_arrival = self.rng.expovariate(rate_per_sec)
             

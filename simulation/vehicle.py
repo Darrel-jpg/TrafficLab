@@ -1,13 +1,6 @@
-"""
-Representasi data dan status kendaraan dalam simulasi.
-"""
 from typing import Optional, Dict, Any
 
 class Vehicle:
-    """
-    Kelas yang merepresentasikan kendaraan (motor atau mobil)
-    yang melintasi persimpangan.
-    """
     def __init__(
         self,
         vehicle_id: str,
@@ -21,24 +14,16 @@ class Vehicle:
         self.approach = approach  # "N", "S", "E", "W"
         self.arrival_time = arrival_time
         self.crossing_duration = crossing_duration
-        
-        # Status perjalanan
-        # "queue": sedang menunggu di antrean
-        # "crossing": sedang melintasi persimpangan
-        # "served": telah sukses melintasi persimpangan
         self.state = "queue"
-        
         self.service_start_time: Optional[float] = None
         self.finish_time: Optional[float] = None
         self.queue_index: int = 0  # Posisi urutan dalam antrean (0 = paling depan)
 
     def start_crossing(self, current_time: float):
-        """Menandai kendaraan mulai melintasi persimpangan."""
         self.state = "crossing"
         self.service_start_time = current_time
 
     def finish_crossing(self, current_time: float):
-        """Menandai kendaraan selesai melintasi persimpangan."""
         self.state = "served"
         self.finish_time = current_time
 
@@ -53,10 +38,6 @@ class Vehicle:
         return max(0.0, current_time - self.arrival_time)
 
     def get_cross_progress(self, current_time: float) -> float:
-        """
-        Mengembalikan progres melintas antara 0.0 sampai 1.0
-        untuk rendering animasi visual yang mulus.
-        """
         if self.state == "queue":
             return 0.0
         if self.state == "served":
@@ -67,7 +48,6 @@ class Vehicle:
         return min(1.0, max(0.0, elapsed / self.crossing_duration))
 
     def to_dict(self, current_time: float) -> Dict[str, Any]:
-        """Serialisasi untuk dikirim via JSON API ke frontend."""
         return {
             "id": self.id,
             "type": self.type,

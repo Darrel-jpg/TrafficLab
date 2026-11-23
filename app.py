@@ -21,7 +21,6 @@ def create_app():
 
     @app.after_request
     def add_header(response):
-        """Mencegah browser caching file static saat pengembangan/pengujian."""
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
@@ -30,6 +29,10 @@ def create_app():
     @app.route("/")
     def index():
         return render_template("index.html", app_name=APP_NAME)
+
+    @app.route("/icon/<path:filename>")
+    def icon_file(filename):
+        return send_from_directory("icon", filename)
 
     @app.errorhandler(404)
     def not_found(e):
@@ -45,5 +48,4 @@ app = create_app()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    print(f"Memulai {APP_NAME} di http://127.0.0.1:{port}")
     app.run(host="127.0.0.1", port=port, debug=True)

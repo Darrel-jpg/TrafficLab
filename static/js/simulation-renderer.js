@@ -3,7 +3,7 @@ class SimulationRenderer {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext('2d');
 
-    // Dimensi Logis Canvas (Square 800x800)
+    // Dimensi Logis Canvas (kotak 800x800)
     this.canvas.width = 800;
     this.canvas.height = 800;
     this.width = 800;
@@ -47,16 +47,13 @@ class SimulationRenderer {
       this.lastBackendReceivedTimestamp = performance.now();
       this.speedMultiplier = speedMultiplier;
 
-      // Daftarkan kendaraan melintas baru ke activeCrossingVehicles
+      // Daftar kendaraan melintas baru ke activeCrossingVehicles
       const crossing = state.crossing_vehicles || [];
       crossing.forEach(veh => {
         if (!this.activeCrossingVehicles.has(veh.id)) {
           const model = this._getVehicleModel(veh.id, veh.type);
           const vLen = model === 'truck_red' ? 62 : (veh.type === 'motor' ? 22 : 44);
           const vWidth = veh.type === 'motor' ? 14 : 25;
-          
-          // Kecepatan jelajah konstan (pixel / detik virtual) untuk melintasi simpang dan seluruh ruas jalan:
-          // Motor ~160 px/detik, Mobil ~135 px/detik sehingga pergerakannya stabil dan mulus keluar kanvas
           const speed = veh.type === 'motor' ? 160.0 : 135.0;
 
           this.activeCrossingVehicles.set(veh.id, {
@@ -108,16 +105,16 @@ class SimulationRenderer {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // 1. Gambar Trotoar & Lahan 4 Sudut (Taman, Pohon, Rumah/Atap)
+    // Gambar Trotoar & Lahan 4 Sudut
     this._drawLandscape(ctx);
 
-    // 2. Gambar Jalan, Garis Pembatas, dan Zebra Crosswalks
+    // Gambar Jalan, Garis Pembatas, dan Zebra Cross
     this._drawRoadNetwork(ctx);
 
-    // 3. Gambar Lampu Lalu Lintas di 4 Sudut Persimpangan
+    // Gambar Lampu Lalu Lintas di 4 Sudut Persimpangan
     this._drawTrafficSignals(ctx);
 
-    // 4. Gambar Kendaraan (Antrean & Melintas Mulus 60 FPS)
+    // Gambar Kendaraan
     if (this.renderState) {
       const currentSimTime = this._getInterpolatedSimTime();
       this._drawVehicles(ctx, currentSimTime);
@@ -125,12 +122,10 @@ class SimulationRenderer {
     }
   }
 
-  /* =========================================================================
-     1. LANSKAP & 4 SUDUT KOTA (Taman, Rumah/Atap, Pohon)
-     ========================================================================= */
+  // LANSKAP & 4 SUDUT KOTA (Taman, Rumah/Atap, Pohon)
   _drawLandscape(ctx) {
     const rw2 = this.roadWidth / 2;
-    const cornerSize = this.cx - rw2; // ~305px
+    const cornerSize = this.cx - rw2;
 
     // Dasar Trotoar Abu-abu Muda
     ctx.fillStyle = '#dbe1e8';
@@ -142,16 +137,16 @@ class SimulationRenderer {
     this._drawCornerPark(ctx, 0, this.cy + rw2, cornerSize, cornerSize, 'SW');
     this._drawCornerPark(ctx, this.cx + rw2, this.cy + rw2, cornerSize, cornerSize, 'SE');
 
-    // Sudut NW (Kiri Atas): Rumah Atap Oranye Terracotta + Gudang + Pohon
+    // Sudut NW (Kiri Atas)
     this._drawHouseRoofTopLeft(ctx, 16, 16, cornerSize - 32);
 
-    // Sudut NE (Kanan Atas): Rumah Atap Cokelat & Abu-abu + Pohon
+    // Sudut NE (Kanan Atas)
     this._drawHouseRoofTopRight(ctx, this.cx + rw2 + 16, 16, cornerSize - 32);
 
-    // Sudut SW (Kiri Bawah): Gedung Hunian Modern Atap Abu-abu Slate + Pohon
+    // Sudut SW (Kiri Bawah)
     this._drawBuildingBottomLeft(ctx, 16, this.cy + rw2 + 16, cornerSize - 32);
 
-    // Sudut SE (Kanan Bawah): Gedung Komersial Modern Berlapis + Pohon
+    // Sudut SE (Kanan Bawah)
     this._drawBuildingBottomRight(ctx, this.cx + rw2 + 16, this.cy + rw2 + 16, cornerSize - 32);
   }
 
@@ -398,9 +393,7 @@ class SimulationRenderer {
     }
   }
 
-  /* =========================================================================
-     3. LAMPU LALU LINTAS
-     ========================================================================= */
+// LAMPU LALU LINTAS
   _drawTrafficSignals(ctx) {
     const states = this.renderState ? this.renderState.signal_states : { N: 'red', S: 'red', E: 'red', W: 'red' };
     const cx = this.cx;
@@ -463,22 +456,19 @@ class SimulationRenderer {
     ctx.restore();
   }
 
-  /* =========================================================================
-     4. KENDARAAN (BERJALAN MULUS SAMPAI TUNTAS KELUAR UJUNG JALAN)
-     ========================================================================= */
+// KENDARAAN
   _drawVehicles(ctx, currentSimTime) {
     const queues = this.renderState.queue_vehicles || {};
     const cx = this.cx;
     const cy = this.cy;
 
-    // 1. Gambar Kendaraan yang sedang melintas (Terus melaju sampai keluar kanvas)
+    // Gambar Kendaraan yang sedang melintas
     const finishedIds = [];
     this.activeCrossingVehicles.forEach((veh, id) => {
       const elapsedSim = Math.max(0.0, currentSimTime - veh.startSimTime);
       const dist = veh.speed * elapsedSim;
       let x = 0, y = 0, heading = 0, isOffScreen = false;
 
-      // Dari garis henti (257 / 543) melaju tuntas sampai keluar batas layar (880 / -80)
       if (veh.approach === 'N') {
         x = cx - 48;
         y = 257 + dist;
@@ -510,7 +500,7 @@ class SimulationRenderer {
 
     finishedIds.forEach(id => this.activeCrossingVehicles.delete(id));
 
-    // 2. Gambar Kendaraan dalam antrean di 4 pendekat (Animasi Lerp saat maju)
+    // Gambar Kendaraan dalam antrean di 4 pendekat
     const activeQueueIds = new Set();
     ['N', 'S', 'E', 'W'].forEach(app => {
       const vList = queues[app] || [];
@@ -577,7 +567,6 @@ class SimulationRenderer {
     ctx.translate(x, y);
     ctx.rotate(heading);
 
-    // 1. Bayangan Halus di Bawah Kendaraan
     ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
     ctx.beginPath();
     ctx.roundRect(-len / 2 + 2, -width / 2 + 3, len, width, 6);
@@ -692,25 +681,23 @@ class SimulationRenderer {
     ctx.restore();
   }
 
-  /* =========================================================================
-     5. BADGE ANTREAN (DIPOSISIKAN DI KIRI SEHINGGA TIDAK MENUTUPI ANTREAN)
-     ========================================================================= */
+// BADGE ANTREAN (DIPOSISIKAN DI KIRI SEHINGGA TIDAK MENUTUPI ANTREAN)
   _drawQueueBadges(ctx) {
     const queues = this.renderState.queues || { N: 0, S: 0, E: 0, W: 0 };
     const cx = this.cx;
     const cy = this.cy;
     const rw2 = this.roadWidth / 2;
 
-    // 1. UTARA: Diletakkan di sebelah KIRI jalan Utara (trotoar barat x ~ 242)
+    // Utara
     this._drawBadgePill(ctx, `Utara: ${queues.N} kend`, cx - rw2 - 55, cy - rw2 - 110, '#0284c7');
 
-    // 2. SELATAN: Diletakkan di sebelah KIRI jalan Selatan (trotoar barat x ~ 242)
+    // Selatan
     this._drawBadgePill(ctx, `Selatan: ${queues.S} kend`, cx - rw2 + 250, cy + rw2 + 110, '#4338ca');
 
-    // 3. BARAT: Diletakkan di sebelah KIRI jalan Barat (trotoar utara y ~ 242)
+    // Barat
     this._drawBadgePill(ctx, `Barat: ${queues.W} kend`, cx - rw2 - 140, cy - rw2 + 210, '#475569');
 
-    // 4. TIMUR: Diletakkan di sebelah KIRI jalan Timur (trotoar selatan y ~ 558)
+    // Timur
     this._drawBadgePill(ctx, `Timur: ${queues.E} kend`, cx + rw2 + 140, cy + rw2 - 209, '#b45309');
   }
 

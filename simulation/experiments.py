@@ -1,15 +1,9 @@
-"""
-Modul Eksperimen Batch untuk evaluasi komparatif Fixed-Time vs Adaptive.
-Menjalankan multiple replications dengan Common Random Numbers (CRN),
-menghitung mean dan standar deviasi, serta menyusun analisis perbandingan.
-"""
 import math
 from typing import Dict, List, Any, Optional
 from config import DEFAULT_SCENARIOS, EXPERIMENT_CONFIG
 from simulation.engine import SimulationEngine
 
 def calculate_mean_and_std(values: List[float]) -> Dict[str, float]:
-    """Menghitung rata-rata (mean) dan standar deviasi sampel."""
     n = len(values)
     if n == 0:
         return {"mean": 0.0, "std": 0.0}
@@ -28,10 +22,6 @@ def run_batch_experiment(
     base_seed: int = 100,
     custom_scenarios_dict: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
-    """
-    Menjalankan batch eksperimen monte carlo perbandingan metode.
-    Menggunakan Common Random Numbers (CRN) di setiap pasangan replikasi.
-    """
     scenarios_pool = custom_scenarios_dict or DEFAULT_SCENARIOS
     scenarios_to_run = selected_scenarios or list(scenarios_pool.keys())
     methods_to_run = methods or ["fixed_time", "adaptive"]
@@ -51,7 +41,6 @@ def run_batch_experiment(
     }
 
     # Format data untuk grafik perbandingan
-    # charts: { avg_wait: {scenario: {fixed_time: X, adaptive: Y}}, ... }
     chart_data = {
         "avg_waiting_time": {"labels": [], "fixed_time": [], "adaptive": []},
         "time_weighted_avg_queue": {"labels": [], "fixed_time": [], "adaptive": []},
@@ -172,7 +161,7 @@ def run_batch_experiment(
             "comparison": diff_info
         }
 
-        # Masukkan ke tabel perbandingan datar (mudah dirender di HTML)
+        # Masukkan ke tabel perbandingan datar
         results["comparison_table"].append({
             "scenario_id": sc_id,
             "scenario_name": sc_name,

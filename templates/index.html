@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TrafficLab — Simulasi Lalu Lintas</title>
+  <title>TrafficLab</title>
+  <link rel="icon" type="image/png" href="/icon/traffic-light.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
@@ -15,38 +16,19 @@
     <!-- Navbar Header Simpel & Bersih -->
     <header class="navbar">
       <div class="navbar-brand">
-        <div class="logo-circle">
-          <span class="light-dot red"></span>
-          <span class="light-dot yellow"></span>
-          <span class="light-dot green"></span>
-        </div>
+        <img src="/icon/traffic-light.png" alt="TrafficLab" class="brand-icon">
         <div class="brand-text">
           <span class="brand-name">TrafficLab</span>
           <span class="brand-tag">Simulasi Persimpangan 4 Arah</span>
         </div>
       </div>
 
-      <!-- Tab Switcher Simpel -->
-      <nav class="view-switcher">
-        <button class="switch-btn active" data-tab="view-simulation">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Simulasi 2D
-        </button>
-        <button class="switch-btn" data-tab="view-experiments">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-          Eksperimen
-        </button>
-      </nav>
-
       <div class="status-pill">
         <span class="status-pulse" id="global-status-dot"></span>
         <span id="global-status-text">Siap</span>
       </div>
     </header>
-
-    <!-- ================================================================= -->
-    <!-- VIEW 1: SIMULASI UTAMA (Hero Canvas + Control Dock + Live KPIs) -->
-    <!-- ================================================================= -->
+    
     <main class="view-panel active" id="view-simulation">
       <div class="sim-grid">
         <!-- Sidebar Kontrol Ringkas -->
@@ -82,7 +64,7 @@
 
           <!-- Volume Kedatangan per Pendekat (4 Arah) -->
           <div class="control-block">
-            <span class="control-title">Volume Arus (kendaraan/menit)</span>
+            <span class="control-title">Volume Arus</span>
             <div class="flow-grid">
               <div class="flow-item">
                 <span class="flow-label north">Utara (N)</span>
@@ -151,15 +133,6 @@
             <canvas id="traffic-canvas" width="800" height="800"></canvas>
           </div>
 
-          <!-- Legenda Elemen Visual -->
-          <div class="compact-legend">
-            <span class="legend-chip"><span class="chip-color taxi"></span> Taxi Kuning</span>
-            <span class="legend-chip"><span class="chip-color sedan"></span> Sedan Biru</span>
-            <span class="legend-chip"><span class="chip-color truck"></span> Truk Merah</span>
-            <span class="legend-chip"><span class="chip-color hatch"></span> Mobil Lainnya</span>
-            <span class="legend-chip"><span class="chip-color motor"></span> Sepeda Motor</span>
-          </div>
-
           <!-- KPI Cards Minimalis (5 Metrik Utama) -->
           <div class="kpi-row">
             <div class="stat-pill">
@@ -201,110 +174,12 @@
         </section>
       </div>
     </main>
-
-    <!-- ================================================================= -->
-    <!-- VIEW 2: EKSPERIMEN BATCH KOMPARATIF -->
-    <!-- ================================================================= -->
-    <section class="view-panel" id="view-experiments">
-      <div class="exp-layout">
-        <!-- Panel Eksekusi Eksperimen -->
-        <div class="exp-panel-card">
-          <div class="exp-header">
-            <div>
-              <h2 class="panel-heading">Eksperimen Komparatif (Fixed-Time vs Adaptive)</h2>
-              <p class="panel-sub">Jalankan perbandingan simulasi dengan Common Random Numbers (CRN) pada seed yang sama.</p>
-            </div>
-            <button type="button" id="btn-run-experiments" class="btn-main play">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
-              Jalankan Batch Eksperimen
-            </button>
-          </div>
-
-          <!-- Parameter Ringkas -->
-          <div class="exp-config-strip">
-            <div class="scenario-checks">
-              <label class="check-item"><input type="checkbox" name="exp-scenario" value="normal" checked> Normal</label>
-              <label class="check-item"><input type="checkbox" name="exp-scenario" value="padat_ns" checked> Padat NS</label>
-              <label class="check-item"><input type="checkbox" name="exp-scenario" value="padat_ew" checked> Padat EW</label>
-              <label class="check-item"><input type="checkbox" name="exp-scenario" value="jam_sibuk" checked> Jam Sibuk</label>
-            </div>
-            <div class="exp-num-inputs">
-              <label>Replikasi: <input type="number" id="exp-replications" value="10" min="1" max="30" class="mini-input"></label>
-              <label>Durasi: <input type="number" id="exp-duration" value="1800" min="300" max="7200" step="300" class="mini-input">s</label>
-            </div>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="exp-progress-box" id="exp-progress-container" style="display: none;">
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" id="exp-progress-fill" style="width: 0%;"></div>
-            </div>
-            <span id="exp-progress-percent" class="progress-text">0%</span>
-          </div>
-        </div>
-
-        <!-- Ringkasan Eksekutif -->
-        <div class="exp-summary-box" id="exp-summary-container" style="display: none;">
-          <h3 class="summary-heading">Ringkasan Temuan Eksperimen</h3>
-          <div class="summary-bullets" id="executive-summary-list"></div>
-        </div>
-
-        <!-- Grafik Komparasi -->
-        <div class="exp-charts-row" id="exp-charts-container" style="display: none;">
-          <div class="chart-card">
-            <span class="card-title">Waktu Tunggu Rata-rata (detik)</span>
-            <div class="chart-wrap"><canvas id="chart-exp-waiting"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <span class="card-title">Antrean Rata-rata Berbobot Waktu (kend)</span>
-            <div class="chart-wrap"><canvas id="chart-exp-queue"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <span class="card-title">Antrean Maksimum (kend)</span>
-            <div class="chart-wrap"><canvas id="chart-exp-max-queue"></canvas></div>
-          </div>
-          <div class="chart-card">
-            <span class="card-title">Throughput (kend/menit)</span>
-            <div class="chart-wrap"><canvas id="chart-exp-throughput"></canvas></div>
-          </div>
-        </div>
-
-        <!-- Tabel Hasil -->
-        <div class="exp-table-box" id="exp-table-container" style="display: none;">
-          <div class="table-bar">
-            <span class="table-caption">Tabel Hasil Eksperimen (Mean ± Std Dev)</span>
-            <button type="button" id="btn-export-csv" class="btn-export">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Ekspor CSV
-            </button>
-          </div>
-          <div class="table-scroll">
-            <table class="clean-table" id="experiment-results-table">
-              <thead>
-                <tr>
-                  <th>Skenario</th>
-                  <th>Waktu Tunggu Fixed (s)</th>
-                  <th>Waktu Tunggu Adaptive (s)</th>
-                  <th>Efisiensi Tunggu</th>
-                  <th>Antrean Rata-rata Fixed</th>
-                  <th>Antrean Rata-rata Adaptive</th>
-                  <th>Efisiensi Antrean</th>
-                  <th>Throughput</th>
-                  <th>Metode Pemenang</th>
-                </tr>
-              </thead>
-              <tbody id="experiment-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
   </div>
 
-  <script src="/static/js/api.js?v=2.3"></script>
-  <script src="/static/js/simulation-renderer.js?v=2.3"></script>
-  <script src="/static/js/charts.js?v=2.3"></script>
-  <script src="/static/js/dashboard.js?v=2.3"></script>
-  <script src="/static/js/app.js?v=2.3"></script>
+  <script src="/static/js/api.js?v=2.4"></script>
+  <script src="/static/js/simulation-renderer.js?v=2.4"></script>
+  <script src="/static/js/charts.js?v=2.4"></script>
+  <script src="/static/js/dashboard.js?v=2.4"></script>
+  <script src="/static/js/app.js?v=2.4"></script>
 </body>
 </html>

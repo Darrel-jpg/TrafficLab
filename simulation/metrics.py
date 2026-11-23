@@ -1,22 +1,7 @@
-"""
-Pelacak dan penghitung metrik kinerja simulasi lalu lintas.
-Menghitung rata-rata waktu tunggu tanpa bias, panjang antrean berbobot waktu,
-throughput, dan riwayat deret waktu untuk visualisasi grafik.
-"""
 from typing import Dict, List, Any
 from simulation.vehicle import Vehicle
 
 class MetricsTracker:
-    """
-    Menghitung semua indikator output yang dipersyaratkan:
-    - Rata-rata waktu tunggu kendaraan (termasuk yang masih antre)
-    - Waktu tunggu rata-rata per pendekat (N, S, E, W)
-    - Panjang antrean maksimum (per arah dan total jaringan)
-    - Rata-rata panjang antrean berbobot waktu (time-weighted average)
-    - Total kendaraan datang, terlayani, dan tersisa
-    - Throughput (kendaraan/menit)
-    - Riwayat data time-series untuk grafik
-    """
     def __init__(self):
         # Koleksi kendaraan
         self.all_vehicles: List[Vehicle] = []
@@ -41,20 +26,16 @@ class MetricsTracker:
         self.history: List[Dict[str, Any]] = []
         self.last_history_sample_time: float = -1.0
 
+    # Mencatat kendaraan baru yang tiba
     def record_arrival(self, vehicle: Vehicle, current_time: float):
-        """Mencatat kendaraan baru yang tiba."""
         self.all_vehicles.append(vehicle)
         self.vehicles_by_approach[vehicle.approach].append(vehicle)
 
+    # Mencatat kendaraan yang telah selesai melintasi persimpangan
     def record_served(self, vehicle: Vehicle, current_time: float):
-        """Mencatat kendaraan yang telah selesai melintasi persimpangan."""
         self.served_vehicles.append(vehicle)
 
     def update_queue_state(self, queues: Dict[str, int], current_time: float):
-        """
-        Memperbarui status antrean dan mengintegrasikan area di bawah kurva antrean
-        untuk menghitung time-weighted average queue length secara matematis.
-        """
         dt = current_time - self.last_update_time
         if dt > 0:
             for approach in ("N", "S", "E", "W"):
@@ -75,10 +56,6 @@ class MetricsTracker:
             self.max_total_queue = total_q
 
     def sample_history_point(self, current_time: float):
-        """
-        Menyimpan snapshot data deret waktu untuk grafik jika interval mencukupi (misal setiap 2 detik).
-        """
-        # Hindari sampel ganda pada waktu yang persis sama
         if current_time - self.last_history_sample_time < 1.0:
             return
 
@@ -99,10 +76,7 @@ class MetricsTracker:
         self.history.append(point)
 
     def get_summary(self, current_time: float) -> Dict[str, Any]:
-        """
-        Menghasilkan ringkasan metrik lengkap berdasarkan waktu simulasi virtual saat ini.
-        """
-        # Pastikan integrasi area antrean diperbarui hingga waktu saat ini
+        # integrasi area antrean diperbarui hingga waktu saat ini
         self.update_queue_state(self.current_queues, current_time)
 
         total_arrived = len(self.all_vehicles)
@@ -111,7 +85,7 @@ class MetricsTracker:
         # Kendaraan tersisa = kendaraan yang masih antre atau sedang menyeberang
         vehicles_remaining = total_arrived - total_served
 
-        # Rata-rata waktu tunggu kendaraan keseluruhan (seluruh kendaraan yang datang)
+        # Rata-rata waktu tunggu kendaraan keseluruhan
         # Kendaraan dilayani: service_start_time - arrival_time
         # Kendaraan mengantre: current_time - arrival_time
         if total_arrived > 0:

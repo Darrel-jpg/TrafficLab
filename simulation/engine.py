@@ -1,8 +1,3 @@
-"""
-Mesin Utama Discrete Event Simulation (DES) berbasis SimPy.
-Mengelola virtual time, proses kedatangan kendaraan, antrean,
-pengontrol lampu lalu lintas, dan pergerakan kendaraan melewati persimpangan.
-"""
 import uuid
 import random
 import simpy
@@ -22,9 +17,6 @@ from simulation.controllers.adaptive import AdaptiveController
 from simulation.metrics import MetricsTracker
 
 class SimulationEngine:
-    """
-    Mesin simulasi lalu lintas diskrit berbasis SimPy.
-    """
     def __init__(
         self,
         simulation_id: Optional[str] = None,
@@ -44,7 +36,6 @@ class SimulationEngine:
         self.motor_ratio = float(motor_ratio)
         self.controller_config = controller_config or {}
 
-        # Default arrival rates jika tidak diberikan
         default_rates = {"N": 8.0, "S": 8.0, "E": 8.0, "W": 8.0}
         self.arrival_rates = arrival_rates or default_rates
 
@@ -83,9 +74,9 @@ class SimulationEngine:
         # Setup Komponen Proses SimPy
         self._setup_processes()
 
+    # Mendaftarkan proses-proses SimPy ke environment
     def _setup_processes(self):
-        """Mendaftarkan proses-proses SimPy ke environment."""
-        # 1. Generator kedatangan kendaraan untuk 4 arah
+        # Generator kedatangan kendaraan untuk 4 arah
         self.generators = {}
         for app in ("N", "S", "E", "W"):
             rate = float(self.arrival_rates.get(app, 8.0))
@@ -98,56 +89,48 @@ class SimulationEngine:
                 on_arrival_callback=self.on_vehicle_arrived
             )
 
-        # 2. Proses Controller Lampu Lalu Lintas
+        # Proses Controller Lampu Lalu Lintas
         self.controller_process = self.env.process(
             self.controller.run_controller_process(self)
         )
 
-        # 3. Proses Server Pendekat (pelayanan kendaraan per arah)
+        # Proses Server Pendekat (pelayanan kendaraan per arah)
         self.approach_processes = {}
         for app in ("N", "S", "E", "W"):
             self.approach_processes[app] = self.env.process(
                 self._approach_server(app)
             )
 
-        # 4. Proses pencatatan berkala untuk riwayat grafik
+        # Proses pencatatan berkala untuk riwayat grafik
         self.sampler_process = self.env.process(self._periodic_sampler())
 
+    # Callback ketika kendaraan baru tiba dari generator
     def on_vehicle_arrived(self, vehicle: Vehicle):
-        """Callback ketika kendaraan baru tiba dari generator."""
         app = vehicle.approach
         vehicle.queue_index = len(self.queues[app])
         self.queues[app].append(vehicle)
 
-        # Catat metrik
         self.metrics.record_arrival(vehicle, self.env.now)
         self._notify_queue_changed()
 
-        # Picu event kedatangan agar server pendekat bangun jika sedang tidur
         if not self.arrival_events[app].triggered:
             self.arrival_events[app].succeed()
         self.arrival_events[app] = self.env.event()
 
+    # Callback ketika fase lampu lalu lintas berganti
     def on_phase_changed(self, new_phase: str):
-        """Callback ketika fase lampu lalu lintas berganti."""
         self._notify_queue_changed()
 
-        # Picu event fase agar server pendekat bereaksi terhadap perubahan lampu
         if not self.phase_event.triggered:
             self.phase_event.succeed()
         self.phase_event = self.env.event()
 
     def _notify_queue_changed(self):
-        """Memperbarui status antrean ke metrics tracker."""
+        # Memperbarui status antrean ke metrics tracker
         current_lengths = {app: len(self.queues[app]) for app in ("N", "S", "E", "W")}
         self.metrics.update_queue_state(current_lengths, self.env.now)
 
     def _approach_server(self, approach: str):
-        """
-        Proses pelayanan kendaraan di garis henti suatu pendekat.
-        Kendaraan HANYA boleh mulai melintasi saat lampu hijau.
-        Kendaraan yang sudah mulai melintas akan menyelesaikan lintasannya.
-        """
         while True:
             # Jika lampu tidak hijau atau antrean kosong, tunggu perubahan fase atau kendaraan baru
             if not self.signal.is_green_for(approach) or len(self.queues[approach]) == 0:
@@ -175,10 +158,8 @@ class SimulationEngine:
             dispatch_headway = 1.2 if vehicle.type == "motor" else 2.0
             yield self.env.timeout(dispatch_headway)
 
+    # Proses kendaraan melintasi kotak persimpangan hingga keluar.
     def _vehicle_crossing(self, vehicle: Vehicle):
-        """
-        Proses kendaraan melintasi kotak persimpangan hingga keluar.
-        """
         yield self.env.timeout(vehicle.crossing_duration)
         vehicle.finish_crossing(self.env.now)
 
@@ -188,15 +169,11 @@ class SimulationEngine:
         self.metrics.record_served(vehicle, self.env.now)
 
     def _periodic_sampler(self):
-        """Mencatat titik riwayat berkala untuk grafik setiap 2 detik virtual."""
         while True:
             self.metrics.sample_history_point(self.env.now)
             yield self.env.timeout(2.0)
 
     def advance(self, delta_seconds: float) -> Dict[str, Any]:
-        """
-        Memajukan waktu virtual SimPy sebesar delta_seconds.
-        """
         if self.status == "finished":
             return self.get_state()
 
@@ -212,18 +189,12 @@ class SimulationEngine:
         return self.get_state()
 
     def run_until_completion(self) -> Dict[str, Any]:
-        """
-        Menjalankan simulasi langsung sampai durasi selesai (mode cepat untuk batch eksperimen).
-        """
         self.status = "running"
         self.env.run(until=self.max_duration)
         self.status = "finished"
         return self.get_state()
 
     def get_state(self) -> Dict[str, Any]:
-        """
-        Mengambil snapshot state lengkap untuk dikirim ke frontend.
-        """
         current_time = self.env.now
         
         # Kirim maksimal 20 kendaraan terdepan per lajur antrean untuk efisiensi transfer

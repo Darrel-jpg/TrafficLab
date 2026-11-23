@@ -1,0 +1,5 @@
+Skenario,Waktu Tunggu Fixed,Waktu Tunggu Adaptive,Efisiensi Waktu Tunggu,Antrean Rata-rata Fixed,Antrean Rata-rata Adaptive,Efisiensi Antrean,Throughput Fixed,Throughput Adaptive,Metode Pemenang
+Normal,13.16 ± 0.52 s,9.24 ± 0.36 s,+29.8%,6.97 ± 0.4 kend,4.89 ± 0.25 kend,+29.8%,31.45 kend/m,31.59 kend/m,Adaptive
+Padat NS,16.18 ± 0.71 s,9.87 ± 0.5 s,+39.0%,10.19 ± 0.67 kend,6.21 ± 0.41 kend,+39.1%,37.54 kend/m,37.59 kend/m,Adaptive
+Padat EW,16.34 ± 1.05 s,9.99 ± 0.36 s,+38.9%,10.29 ± 0.84 kend,6.29 ± 0.37 kend,+38.9%,37.18 kend/m,37.56 kend/m,Adaptive
+Jam Sibuk,15.48 ± 0.76 s,10.62 ± 0.36 s,+31.4%,12.28 ± 0.82 kend,8.43 ± 0.46 kend,+31.4%,47.13 kend/m,47.29 kend/m,Adaptive

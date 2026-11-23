@@ -1,9 +1,3 @@
-/**
- * Modul Dashboard & Kontrol Interaksi untuk TrafficLab.
- * Mengelola state mesin simulasi, pemajuan waktu virtual,
- * pembaruan KPI live, dan eksekusi batch eksperimen.
- */
-
 class DashboardController {
   constructor(renderer, chartsManager) {
     this.renderer = renderer;
@@ -18,7 +12,6 @@ class DashboardController {
 
     // Cache Konfigurasi
     this.appConfig = null;
-    this.lastExperimentResults = null;
 
     this._bindElements();
     this._attachEventListeners();
@@ -61,7 +54,6 @@ class DashboardController {
     this.kpiThroughput = document.getElementById('kpi-throughput');
 
     // Eksperimen Elements
-    this.btnRunExp = document.getElementById('btn-run-experiments');
     this.expProgressContainer = document.getElementById('exp-progress-container');
     this.expProgressFill = document.getElementById('exp-progress-fill');
     this.expProgressPercent = document.getElementById('exp-progress-percent');
@@ -69,12 +61,11 @@ class DashboardController {
     this.executiveSummaryList = document.getElementById('executive-summary-list');
     this.expChartsContainer = document.getElementById('exp-charts-container');
     this.expTableContainer = document.getElementById('exp-table-container');
-    this.expTableBody = document.getElementById('experiment-table-body');
     this.btnExportCsv = document.getElementById('btn-export-csv');
   }
 
   _attachEventListeners() {
-    // 1. Toggle Segmented Method (Fixed-Time vs Adaptive)
+    // Toggle Segmented Method (Fixed-Time vs Adaptive)
     if (this.btnMethodFixed && this.btnMethodAdaptive) {
       this.btnMethodFixed.addEventListener('click', () => {
         this.btnMethodFixed.classList.add('active');
@@ -91,7 +82,7 @@ class DashboardController {
       });
     }
 
-    // 2. Scenario Chips
+    // Scenario Chips
     this.scenarioChips.forEach(chip => {
       chip.addEventListener('click', () => {
         this.scenarioChips.forEach(c => c.classList.remove('active'));
@@ -102,7 +93,7 @@ class DashboardController {
       });
     });
 
-    // 3. Speed buttons
+    // Speed buttons
     this.speedButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         this.speedButtons.forEach(b => b.classList.remove('active'));
@@ -115,19 +106,11 @@ class DashboardController {
       });
     });
 
-    // 4. Tombol Aksi Simulasi
+    // Tombol Aksi Simulasi
     this.btnStart.addEventListener('click', () => this.startSimulation());
     this.btnPause.addEventListener('click', () => this.pauseSimulation());
     this.btnResume.addEventListener('click', () => this.resumeSimulation());
     this.btnReset.addEventListener('click', () => this.resetSimulation());
-
-    // 5. Tombol Eksperimen
-    if (this.btnRunExp) {
-      this.btnRunExp.addEventListener('click', () => this.runExperiments());
-    }
-    if (this.btnExportCsv) {
-      this.btnExportCsv.addEventListener('click', () => this.exportCsv());
-    }
   }
 
   async init() {
@@ -272,32 +255,32 @@ class DashboardController {
   _handleStateUpdate(state) {
     if (!state) return;
 
-    // 1. Update Renderer Canvas dengan Speed Multiplier untuk Interpolasi Halus 60 FPS
+    // Update Renderer Canvas dengan Speed Multiplier untuk Interpolasi Halus 60 FPS
     this.renderer.updateState(state, this.speedMultiplier);
 
-    // 2. Update Live Charts
+    // Update Live Charts
     if (state.history) {
       this.charts.updateLiveChart(state.history);
     }
 
-    // 3. Update Jam Simulasi
+    // Update Jam Simulasi
     const simTime = state.simulation_time || 0.0;
     const maxDur = state.max_duration || 1800.0;
     this.clockDisplay.textContent = this._formatTime(simTime);
     this.clockMax.textContent = this._formatTime(maxDur);
 
-    // 4. Update Badge Fase
+    // Update Badge Fase
     const phaseNames = {
       NS: 'Fase NS: HIJAU',
       YELLOW_NS: 'Fase NS: KUNING',
-      ALL_RED_1: 'All-Red (Clearance)',
+      ALL_RED_1: 'All-Red',
       EW: 'Fase EW: HIJAU',
       YELLOW_EW: 'Fase EW: KUNING',
-      ALL_RED_2: 'All-Red (Clearance)'
+      ALL_RED_2: 'All-Red'
     };
     this.phaseBadge.textContent = phaseNames[state.active_phase] || `Fase: ${state.active_phase}`;
 
-    // 5. Update KPI Cards
+    // Update KPI Cards
     const m = state.metrics || {};
     this.kpiWaitTime.textContent = (m.avg_waiting_time || 0.0).toFixed(2);
     this.kpiAvgQueue.textContent = (m.time_weighted_avg_queue || 0.0).toFixed(2);
@@ -342,109 +325,5 @@ class DashboardController {
       this.btnResume.style.display = 'none';
       this.btnReset.disabled = false;
     }
-  }
-
-  /* =========================================================================
-     Batch Experiments Handling
-     ========================================================================= */
-  async runExperiments() {
-    const checkedScenarios = Array.from(
-      document.querySelectorAll('input[name="exp-scenario"]:checked')
-    ).map(el => el.value);
-
-    if (checkedScenarios.length === 0) {
-      alert('Pilih minimal 1 skenario untuk eksperimen.');
-      return;
-    }
-
-    const reps = parseInt(document.getElementById('exp-replications').value, 10) || 10;
-    const dur = parseFloat(document.getElementById('exp-duration').value) || 1800;
-
-    this.btnRunExp.disabled = true;
-    this.expProgressContainer.style.display = 'flex';
-    this.expProgressFill.style.width = '35%';
-    this.expProgressPercent.textContent = 'Memproses...';
-
-    try {
-      const results = await TrafficLabAPI.runExperiments({
-        scenarios: checkedScenarios,
-        methods: ['fixed_time', 'adaptive'],
-        replications: reps,
-        duration: dur,
-        seed: 100
-      });
-
-      this.expProgressFill.style.width = '100%';
-      this.expProgressPercent.textContent = 'Selesai';
-      this.lastExperimentResults = results;
-
-      setTimeout(() => {
-        this.expProgressContainer.style.display = 'none';
-        this.btnRunExp.disabled = false;
-        this._renderExperimentResults(results);
-      }, 350);
-
-    } catch (err) {
-      this.expProgressContainer.style.display = 'none';
-      this.btnRunExp.disabled = false;
-      alert(`Gagal: ${err.message}`);
-    }
-  }
-
-  _renderExperimentResults(results) {
-    this.expSummaryContainer.style.display = 'block';
-    this.executiveSummaryList.innerHTML = '';
-    (results.executive_summary || []).forEach(text => {
-      const p = document.createElement('p');
-      p.innerHTML = `• ${text}`;
-      this.executiveSummaryList.appendChild(p);
-    });
-
-    this.expChartsContainer.style.display = 'grid';
-    this.charts.renderExperimentCharts(results.charts);
-
-    this.expTableContainer.style.display = 'block';
-    this.expTableBody.innerHTML = '';
-    (results.comparison_table || []).forEach(row => {
-      const tr = document.createElement('tr');
-      const badgeClass = row.best_method === 'Adaptive'
-        ? 'adaptive'
-        : (row.best_method === 'Fixed-Time' ? 'fixed' : 'equal');
-
-      tr.innerHTML = `
-        <td><strong>${row.scenario_name}</strong></td>
-        <td>${row.fixed_wait}</td>
-        <td>${row.adaptive_wait}</td>
-        <td><strong style="color: ${parseFloat(row.wait_diff) > 0 ? '#16a34a' : '#d97706'}">${row.wait_diff}</strong></td>
-        <td>${row.fixed_queue}</td>
-        <td>${row.adaptive_queue}</td>
-        <td><strong style="color: ${parseFloat(row.queue_diff) > 0 ? '#16a34a' : '#d97706'}">${row.queue_diff}</strong></td>
-        <td>${row.adaptive_tp}</td>
-        <td><span class="badge-tag ${badgeClass}">${row.best_method}</span></td>
-      `;
-      this.expTableBody.appendChild(tr);
-    });
-  }
-
-  exportCsv() {
-    if (!this.lastExperimentResults || !this.lastExperimentResults.comparison_table) {
-      alert('Belum ada data eksperimen untuk diekspor.');
-      return;
-    }
-
-    const rows = this.lastExperimentResults.comparison_table;
-    let csv = 'Skenario,Waktu Tunggu Fixed-Time,Waktu Tunggu Adaptive,Efisiensi Tunggu (%),Antrean Fixed-Time,Antrean Adaptive,Efisiensi Antrean (%),Throughput Adaptive,Metode Terbaik\n';
-
-    rows.forEach(r => {
-      csv += `"${r.scenario_name}","${r.fixed_wait}","${r.adaptive_wait}","${r.wait_diff}","${r.fixed_queue}","${r.adaptive_queue}","${r.queue_diff}","${r.adaptive_tp}","${r.best_method}"\n`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `TrafficLab_Hasil_Eksperimen_${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 }

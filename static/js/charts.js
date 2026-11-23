@@ -1,8 +1,3 @@
-/**
- * Modul Manajemen Grafik Chart.js untuk TrafficLab.
- * Menangani grafik live antrean terhadap waktu dan grafik perbandingan hasil eksperimen.
- */
-
 class ChartsManager {
   constructor() {
     this.liveChart = null;
@@ -100,90 +95,5 @@ class ChartsManager {
     this.liveChart.data.labels = [];
     this.liveChart.data.datasets.forEach(ds => ds.data = []);
     this.liveChart.update();
-  }
-
-  renderExperimentCharts(chartsData) {
-    if (typeof Chart === 'undefined' || !chartsData) return;
-
-    // 1. Chart Rata-rata Waktu Tunggu
-    this._renderBarComparison(
-      'chart-exp-waiting',
-      'waiting',
-      'Waktu Tunggu (detik)',
-      chartsData.avg_waiting_time
-    );
-
-    // 2. Chart Rata-rata Panjang Antrean Berbobot Waktu
-    this._renderBarComparison(
-      'chart-exp-queue',
-      'queue',
-      'Antrean Rata-rata (kendaraan)',
-      chartsData.time_weighted_avg_queue
-    );
-
-    // 3. Chart Antrean Maksimum
-    this._renderBarComparison(
-      'chart-exp-max-queue',
-      'maxQueue',
-      'Antrean Puncak (kendaraan)',
-      chartsData.max_queue
-    );
-
-    // 4. Chart Throughput
-    this._renderBarComparison(
-      'chart-exp-throughput',
-      'throughput',
-      'Throughput (kendaraan/menit)',
-      chartsData.throughput
-    );
-  }
-
-  _renderBarComparison(canvasId, chartKey, yAxisLabel, metricData) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas || !metricData) return;
-
-    if (this.expCharts[chartKey]) {
-      this.expCharts[chartKey].destroy();
-    }
-
-    const ctx = canvas.getContext('2d');
-    this.expCharts[chartKey] = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: metricData.labels,
-        datasets: [
-          {
-            label: 'Fixed-Time (Waktu Tetap)',
-            backgroundColor: '#f59e0b',
-            borderRadius: 6,
-            data: metricData.fixed_time
-          },
-          {
-            label: 'Adaptive (Responsif Antrean)',
-            backgroundColor: '#0284c7',
-            borderRadius: 6,
-            data: metricData.adaptive
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: { grid: { display: false } },
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: yAxisLabel, font: { size: 11, family: 'DM Sans' } },
-            grid: { color: '#f1f5f9' }
-          }
-        },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { font: { size: 11, family: 'DM Sans', weight: 600 } }
-          }
-        }
-      }
-    });
   }
 }
