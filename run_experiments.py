@@ -11,7 +11,7 @@ from simulation.experiments import run_batch_experiment
 
 def main():
     print("=" * 80)
-    print("TrafficLab — Menjalankan Batch Eksperimen Monte Carlo (CRN)")
+    print("TrafficLab - Menjalankan Batch Eksperimen Monte Carlo (CRN)")
     print("Membandingkan: Fixed-Time vs Adaptive Traffic Signal")
     print("=" * 80)
     print("Sedang memproses simulasi 10 replikasi per skenario...")
