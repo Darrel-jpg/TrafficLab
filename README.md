@@ -1,4 +1,4 @@
-# TrafficLab — Simulasi dan Analisis Pengaturan Lampu Lalu Lintas
+# TrafficLab - Simulasi dan Analisis Pengaturan Lampu Lalu Lintas
 
 TrafficLab adalah aplikasi web interaktif untuk memodelkan, menjalankan, dan membandingkan strategi pengaturan lampu lalu lintas pada persimpangan empat arah. Proyek ini dikembangkan sebagai tugas mata kuliah **Pemodelan dan Simulasi**.
 
