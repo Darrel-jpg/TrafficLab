@@ -1,4 +1,4 @@
-# TrafficLab — Simulasi dan Analisis Pengaturan Lampu Lalu Lintas
+# TrafficLab - Simulasi dan Analisis Pengaturan Lampu Lalu Lintas
 
 **TrafficLab** adalah aplikasi web interaktif berbasis sains simulasi (*Discrete Event Simulation* / DES) untuk memodelkan, memvisualisasikan, dan menganalisis kinerja algoritma pengaturan lampu lalu lintas pada persimpangan jalan empat arah (**Utara, Selatan, Barat, dan Timur**)
 
@@ -135,4 +135,4 @@ Menggunakan siklus berulang yang kaku:
 
 ---
 
-**TrafficLab** — Proyek Akademik Mata Kuliah Pemodelan dan Simulasi.
+**TrafficLab** - Proyek Akademik Mata Kuliah Pemodelan dan Simulasi.
