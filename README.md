@@ -1,8 +1,6 @@
 # TrafficLab — Simulasi dan Analisis Pengaturan Lampu Lalu Lintas
 
-**TrafficLab** adalah aplikasi web interaktif berbasis sains simulasi (*Discrete Event Simulation* / DES) untuk memodelkan, memvisualisasikan, dan menganalisis kinerja algoritma pengaturan lampu lalu lintas pada persimpangan jalan empat arah (**Utara, Selatan, Barat, dan Timur**).
-
-Proyek ini dikembangkan untuk tugas mata kuliah **Pemodelan dan Simulasi**. Aplikasi menggunakan **Python Flask** sebagai backend web server, **SimPy** sebagai mesin virtual-time event simulation terpusat, serta **HTML5 Canvas 2D** dan **Chart.js** untuk visualisasi lalu lintas real-time yang mulus pada antarmuka *modern light mode*.
+**TrafficLab** adalah aplikasi web interaktif berbasis sains simulasi (*Discrete Event Simulation* / DES) untuk memodelkan, memvisualisasikan, dan menganalisis kinerja algoritma pengaturan lampu lalu lintas pada persimpangan jalan empat arah (**Utara, Selatan, Barat, dan Timur**)
 
 ---
 
@@ -117,7 +115,7 @@ Script akan memproses batch simulasi Monte Carlo 10 replikasi per skenario denga
 ### 1. Proses Kedatangan Kendaraan
 Kedatangan kendaraan pada masing-masing pendekat dimodelkan sebagai **Proses Poisson** stokastik. Waktu antar-kedatangan (*inter-arrival time*) dibangkitkan dari distribusi eksponensial menggunakan generator acak terisolasi (`random.Random(seed)`):
 
-$$\Delta t \sim \operatorname{Exp}\left(\lambda = \frac{\text{volume}}{60}\right)$$
+$$\Delta t \sim \mathrm{Exp}\left(\lambda = \frac{\text{volume}}{60}\right)$$
 
 ### 2. Pengendali Fixed-Time
 Menggunakan siklus berulang yang kaku:
